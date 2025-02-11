@@ -24,7 +24,7 @@ class fetchCardData {
         }
     }
     func conditionalSearch(card:cards?,completion: @escaping ([cards]?, Bool) -> Void) {
-        AF.request("http://127.0.0.1:8080/api/card",method: .put,parameters: ["searchTag":card?.trueName],encoding: JSONEncoding.default).response { response in
+        AF.request("http://127.0.0.1:8080/getBySearchTag",method: .put,parameters: ["searchTag":card?.searchTag],encoding: JSONEncoding.default).response { response in
             guard let data = response.data else { return }
            
             let decoder = JSONDecoder()
