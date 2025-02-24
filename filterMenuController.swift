@@ -7,8 +7,10 @@
 
 import Foundation
 import UIKit
+import Alamofire
 class filterMenu: UIViewController {
     @IBOutlet weak var scrollOfsubView: UIView!
+    @IBOutlet weak var searchButtun: UIButton!
     var buttunArray:[UIButton] = []
     var parametersDic : [String : [String]] = [:]
     var kategoriArray = ["通常","効果","儀式","融合","シンクロ","エクシーズ","ペンデュラム","リンク"]
@@ -27,7 +29,7 @@ class filterMenu: UIViewController {
         createTitleLabel(x: 50, y: 370, width: 200, height: 50, text: "種族")
         createButtun(x: 50, y: 410, buttonWidth: 100, buttonHeight: 25, array: raceArray, buttonSpacing: 30, createButtunCount: 24,buttonsPerColumn: 12,parameterKey: "race")
         createTitleLabel(x: 50, y: 770, width: 200, height: 50, text: "レベル")
-        createButtun(x: 50, y: 810, buttonWidth: 100, buttonHeight: 25, array: levelArray, buttonSpacing: 30, createButtunCount: 12,buttonsPerColumn: 6,parameterKey: "level")
+        createButtun(x: 50, y: 810, buttonWidth: 100, buttonHeight: 25, array: levelArray, buttonSpacing: 30, createButtunCount: 12,buttonsPerColumn: 6,parameterKey: "lebel")
         createTitleLabel(x: 50, y: 980, width: 200, height: 50, text: "ランク")
         createButtun(x: 50, y: 1020, buttonWidth: 100, buttonHeight: 25, array: rankArray, buttonSpacing: 30, createButtunCount: 14,buttonsPerColumn: 7,parameterKey: "level")
         createTitleLabel(x: 50, y: 1220, width: 200, height: 50, text: "リンク")
@@ -94,6 +96,26 @@ class filterMenu: UIViewController {
     func removeValueOfArray(array: inout [String], value: String) {
         if let index = array.firstIndex(of: value) {
             array.remove(at: index)
+        }
+    }
+    @IBAction func searchAction(_ sender: Any) {
+        let query = parametersDic.flatMap { key,value in //手動でURLエンコーディング
+            value.map { "\(key)=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }.joined(separator: "&")
+        }
+        let urlString = "***"+query
+        AF.request(urlString,method: .get).response { response in
+            guard let data = response.data else { return }
+            let decoder = JSONDecoder()
+            do {
+               let decodedObject = try decoder.decode([cards].self, from: data)
+                DispatchQueue.main.async {
+                    print(decodedObject)
+                }
+            }
+            catch {
+                print("読み込み失敗")
+               
+            }
         }
     }
 }
