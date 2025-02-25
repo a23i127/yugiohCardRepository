@@ -31,7 +31,7 @@ class filterMenu: UIViewController {
         createTitleLabel(x: 50, y: 770, width: 200, height: 50, text: "レベル")
         createButtun(x: 50, y: 810, buttonWidth: 100, buttonHeight: 25, array: levelArray, buttonSpacing: 30, createButtunCount: 12,buttonsPerColumn: 6,parameterKey: "lebel")
         createTitleLabel(x: 50, y: 980, width: 200, height: 50, text: "ランク")
-        createButtun(x: 50, y: 1020, buttonWidth: 100, buttonHeight: 25, array: rankArray, buttonSpacing: 30, createButtunCount: 14,buttonsPerColumn: 7,parameterKey: "level")
+        createButtun(x: 50, y: 1020, buttonWidth: 100, buttonHeight: 25, array: rankArray, buttonSpacing: 30, createButtunCount: 14,buttonsPerColumn: 7,parameterKey: "lebel")
         createTitleLabel(x: 50, y: 1220, width: 200, height: 50, text: "リンク")
         createButtun(x: 50, y: 1260, buttonWidth: 100, buttonHeight: 25, array: rinkArray, buttonSpacing: 30, createButtunCount: 6,buttonsPerColumn: 3,parameterKey: "rink")
     }
@@ -100,16 +100,19 @@ class filterMenu: UIViewController {
     }
     @IBAction func searchAction(_ sender: Any) {
         let query = parametersDic.flatMap { key,value in //手動でURLエンコーディング
-            value.map { "\(key)=\($0.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)" }.joined(separator: "&")
+            value.map { URLQueryItem(name: key, value: $0) }
         }
-        let urlString = "***"+query
+        var components = URLComponents()
+        components.queryItems = query
+        let urlString = "**?" + components.percentEncodedQuery!
+        print(urlString)
         AF.request(urlString,method: .get).response { response in
             guard let data = response.data else { return }
             let decoder = JSONDecoder()
             do {
                let decodedObject = try decoder.decode([cards].self, from: data)
                 DispatchQueue.main.async {
-                    print(decodedObject)
+                   
                 }
             }
             catch {
@@ -119,4 +122,5 @@ class filterMenu: UIViewController {
         }
     }
 }
+
 
