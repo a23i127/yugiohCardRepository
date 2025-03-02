@@ -16,33 +16,39 @@ class FirstViewController: UIViewController,UICollectionViewDelegate,UICollectio
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tabVar.delegate = self
-        self.seachTextFirld.placeholder = "🔍検索ワード入力"
-        // Do any additional setup after loading the view.
+        self.seachTextFirld.placeholder = "カード名を入力"
+        NotificationCenter.default.addObserver(self, selector: #selector(HandleDismiss(_:)), name: NSNotification.Name("検索完了"), object: nil)
     }
     //ローカルサーバーでもstructの内容をコーディングする
     override func viewDidAppear(_ animated: Bool) {
-        let fetchCardInstance = fetchCardData()
-        fetchCardInstance.fecthCard() { [weak self] cards,result in
-            guard let self = self else { return }
-            switch result {
-            case true:
-                for item in cards! {
-                    UserInfo.shared.imageUrls?.append(URL(string:item.imageUrl)!)
+        if card == nil{
+            let fetchCardInstance = fetchCardData()
+            fetchCardInstance.fecthCard() { [weak self] cards,result in
+                guard let self = self else { return }
+                switch result {
+                case true:
+                    for item in cards! {
+                        UserInfo.shared.imageUrls?.append(URL(string:item.imageUrl)!)
+                    }
+                    SDWebImagePrefetcher.shared.prefetchURLs(UserInfo.shared.imageUrls!)
+                    self.card = cards
+                    self.collectionView.reloadData()
+                    //更新
+                case false: self.showAlert()
                 }
-                SDWebImagePrefetcher.shared.prefetchURLs(UserInfo.shared.imageUrls!)
-                self.card = cards
-                self.collectionView.reloadData()
-                //更新
-            case false: self.showAlert()
-                
             }
         }
+    }
+    @objc func HandleDismiss(_ notification: Notification) {
+    guard let value = notification.object as? [cards],!value.isEmpty else { return }
+        self.card = value
+        self.collectionView.reloadData()
     }
     @IBAction func searchAction(_ sender: Any) {
         guard let textString = self.seachTextFirld.text else { return }
         //Getに対してparametersをつけようとすると、urlクエリにparametersが自動で組み込まれる.==urlクエリに、jsonencoderすると、Jsonが、urlの中にあってだめ
         //getリクエストでは、ボディを指定できない
-        AF.request("http://127.0.0.1:8080/search",method: .put,parameters: ["name":textString],encoding:JSONEncoding.default).response { response in
+        AF.request("**",method: .get,parameters: ["name":textString],encoding:URLEncoding.default).response { response in
             guard let data = response.data else { return }
             print(String(data: data, encoding: .utf8))
             let decoder = JSONDecoder()
@@ -56,7 +62,6 @@ class FirstViewController: UIViewController,UICollectionViewDelegate,UICollectio
             }
         }
     }
-    //UIImageをデータベースに格納できるStringに変換する
     func tabBar(_ tabBar: UITabBar, didSelect item: UITabBarItem) {
         switch item.tag{
         case 0:
@@ -65,21 +70,17 @@ class FirstViewController: UIViewController,UICollectionViewDelegate,UICollectio
             let nextView = storyboard.instantiateViewController(withIdentifier: "Main")
             nextView.modalPresentationStyle = .formSheet
             present(nextView, animated: true, completion: nil)
-            
         case 1:
             print("1") // 設定アイコンをタップした場合
             let storyboard: UIStoryboard = self.storyboard!
             let nextView = storyboard.instantiateViewController(withIdentifier: "Config")
             nextView.modalPresentationStyle = .formSheet
             present(nextView, animated: true, completion: nil)
-            
         default : return
-            
         }
     }
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // segueの識別子を確認
-        if segue.identifier == "DetailCard"{
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) { // segueの識別子を確認
+        if segue.identifier == "DetailCard" {
             if let destinationView = segue.destination as? DetailCard {
                 destinationView.cardData = self.card![UserInfo.shared.indexPath]
             }
@@ -87,8 +88,8 @@ class FirstViewController: UIViewController,UICollectionViewDelegate,UICollectio
     }
     //セクションの中のセルの数を返す
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
         //今回はとりあえず12とする。（配列に表示させたいデータを入れている場合は配列のデータ数を返せば良い。）
+        print(card?.count)
         return card?.count ?? 0
     }
     //セルに表示する内容を記載する
@@ -121,12 +122,10 @@ class FirstViewController: UIViewController,UICollectionViewDelegate,UICollectio
         self.performSegue(withIdentifier: "DetailCard", sender: nil)
         
     }
-    
     func showAlert() {
         let alert = UIAlertController(title: "お知らせです", message: "エラーです", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
-    
 }
 
