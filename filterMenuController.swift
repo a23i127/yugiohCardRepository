@@ -13,6 +13,7 @@ class filterMenu: UIViewController {
     @IBOutlet weak var searchButtun: UIButton!
     var buttunArray:[UIButton] = []
     var parametersDic : [String : [String]] = [:]
+    var searchedCard : [cards] = []
     var kategoriArray = ["通常","効果","儀式","融合","シンクロ","エクシーズ","ペンデュラム","リンク"]
     var attributeArray = ["火属性","水属性","風属性","地属性","光属性","闇属性","神属性"]
     var raceArray = ["ドラゴン族","悪魔族","海竜族","機械族","恐竜族","獣族","植物族","戦士族","天使族","雷族","サイキック族","サイバース族","アンデット族","炎族","岩石族","魚族","昆虫族","獣戦士族","水族","鳥獣族","魔法使い族","爬虫類族","幻竜族","幻神獣族"]
@@ -34,6 +35,10 @@ class filterMenu: UIViewController {
         createButtun(x: 50, y: 1020, buttonWidth: 100, buttonHeight: 25, array: rankArray, buttonSpacing: 30, createButtunCount: 14,buttonsPerColumn: 7,parameterKey: "lebel")
         createTitleLabel(x: 50, y: 1220, width: 200, height: 50, text: "リンク")
         createButtun(x: 50, y: 1260, buttonWidth: 100, buttonHeight: 25, array: rinkArray, buttonSpacing: 30, createButtunCount: 6,buttonsPerColumn: 3,parameterKey: "rink")
+    }
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.post(name: NSNotification.Name("検索完了"), object: searchedCard)
     }
     @objc func tapedButton(_ sender: UIButton) {
         if sender.backgroundColor == .blue {
@@ -104,20 +109,22 @@ class filterMenu: UIViewController {
         }
         var components = URLComponents()
         components.queryItems = query
-        let urlString = "**?" + components.percentEncodedQuery!
+        let urlString = "***/searchCard?" + components.percentEncodedQuery!
         print(urlString)
         AF.request(urlString,method: .get).response { response in
             guard let data = response.data else { return }
+            print(String(data: data, encoding: .utf8))
             let decoder = JSONDecoder()
             do {
                let decodedObject = try decoder.decode([cards].self, from: data)
                 DispatchQueue.main.async {
-                   
+                    self.searchedCard.append(contentsOf: decodedObject)
+                    self.dismiss(animated: true)
+                    print(self.searchedCard)
                 }
             }
             catch {
                 print("読み込み失敗")
-               
             }
         }
     }
