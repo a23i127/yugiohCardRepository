@@ -9,9 +9,11 @@ import Foundation
 import UIKit
 class DetailCard: UIViewController,UICollectionViewDelegateFlowLayout,UICollectionViewDataSource,UICollectionViewDelegate {
     var cardData: cards?
+    @IBOutlet var swipeRecognizer: UISwipeGestureRecognizer!
     var anyCards: [cards]?
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var collectionView2: UICollectionView!
+    var corentIndex = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         ImageUrl()
@@ -29,13 +31,24 @@ class DetailCard: UIViewController,UICollectionViewDelegateFlowLayout,UICollecti
             }
         }
     }
+   @IBAction func swipeAction(_ sender: Any) {
+       if swipeRecognizer.direction == .left {
+            corentIndex = (corentIndex + 1) % anyCards!.count
+            ImageUrl(array: anyCards!)
+            print(1)
+        }
+       if swipeRecognizer.direction == .right {
+            corentIndex = ((corentIndex - 1) + anyCards!.count) % anyCards!.count
+            ImageUrl(array: anyCards!)
+        }
+    }
     func conditionalSearch() {
         let fetchCardInstance = fetchCardData()
         fetchCardInstance.conditionalSearch(card: cardData) { [weak self] cards,result in
                 guard let self = self else { return }
                 switch result {
                 case true:
-                    self.anyCards = cards
+                    self.anyCards = cards    //cardDataの関連カードが入るオブジェクト
                     self.collectionView2.reloadData()
                     //更新
                 case false: self.showAlert()
@@ -46,6 +59,15 @@ class DetailCard: UIViewController,UICollectionViewDelegateFlowLayout,UICollecti
         //ここで、urlを画像に表示させる
         do{
             let url = URL(string: cardData!.imageUrl)
+            imageView.sd_setImage(with: url)
+        } catch {
+            print("Error : Cat't get image")
+        }
+    }
+    func ImageUrl(array:[cards]) {
+        //ここで、urlを画像に表示させる
+        do{
+            let url = URL(string: array[corentIndex].imageUrl)
             imageView.sd_setImage(with: url)
         } catch {
             print("Error : Cat't get image")
