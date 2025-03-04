@@ -9,7 +9,9 @@ import Foundation
 import UIKit
 class DetailCard: UIViewController,UICollectionViewDelegateFlowLayout,UICollectionViewDataSource,UICollectionViewDelegate {
     var cardData: cards?
-    @IBOutlet var swipeRecognizer: UISwipeGestureRecognizer!
+
+    @IBOutlet var swiperight: UISwipeGestureRecognizer!
+    @IBOutlet var swipeLeft: UISwipeGestureRecognizer!
     var anyCards: [cards]?
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var collectionView2: UICollectionView!
@@ -31,16 +33,13 @@ class DetailCard: UIViewController,UICollectionViewDelegateFlowLayout,UICollecti
             }
         }
     }
-   @IBAction func swipeAction(_ sender: Any) {
-       if swipeRecognizer.direction == .left {
-            corentIndex = (corentIndex + 1) % anyCards!.count
-            ImageUrl(array: anyCards!)
-            print(1)
-        }
-       if swipeRecognizer.direction == .right {
-            corentIndex = ((corentIndex - 1) + anyCards!.count) % anyCards!.count
-            ImageUrl(array: anyCards!)
-        }
+    @IBAction func swipeRightAct(_ sender: Any) {
+        corentIndex = (corentIndex  + 1) % anyCards!.count
+        ImageUrl(array: anyCards!)
+    }
+    @IBAction func swipeLeftAct(_ sender: Any) {
+        corentIndex = ((corentIndex - 1) + anyCards!.count) % anyCards!.count
+        ImageUrl(array: anyCards!)
     }
     func conditionalSearch() {
         let fetchCardInstance = fetchCardData()
