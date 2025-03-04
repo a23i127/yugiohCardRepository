@@ -9,6 +9,65 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--Filter Menu-->
+        <scene sceneID="sdk-BX-Co6">
+            <objects>
+                <viewController id="Duz-Z8-5h4" customClass="filterMenu" customModule="YugiohProject" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="vKJ-vi-SmM">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="842"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="geb-yI-Tc8">
+                                <rect key="frame" x="16" y="0.0" width="361" height="842"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="egd-a7-H8r" userLabel="ScrollOfView">
+                                        <rect key="frame" x="0.0" y="0.0" width="361" height="1500"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ldK-KF-OYR">
+                                                <rect key="frame" x="143" y="1457" width="75" height="35"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <state key="normal" title="Button"/>
+                                                <buttonConfiguration key="configuration" style="plain" title="Button"/>
+                                                <connections>
+                                                    <action selector="searchAction:" destination="Duz-Z8-5h4" eventType="touchUpInside" id="f8A-Bz-GDH"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="1500" id="56B-Od-jPk"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="egd-a7-H8r" firstAttribute="leading" secondItem="geb-yI-Tc8" secondAttribute="leading" id="4Hb-bt-Ntl"/>
+                                    <constraint firstAttribute="trailing" secondItem="egd-a7-H8r" secondAttribute="trailing" id="WKj-Ie-Ls7"/>
+                                    <constraint firstItem="egd-a7-H8r" firstAttribute="width" secondItem="geb-yI-Tc8" secondAttribute="width" id="be9-ks-2q2"/>
+                                    <constraint firstAttribute="bottom" secondItem="egd-a7-H8r" secondAttribute="bottom" id="kd7-MG-WRB"/>
+                                    <constraint firstItem="egd-a7-H8r" firstAttribute="top" secondItem="geb-yI-Tc8" secondAttribute="top" id="v01-Ni-BRX"/>
+                                </constraints>
+                                <viewLayoutGuide key="contentLayoutGuide" id="9OW-3E-ODV"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="eVU-7R-b3R"/>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="TUF-0D-YPM"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="bottomMargin" secondItem="geb-yI-Tc8" secondAttribute="bottom" id="42K-fB-GR0"/>
+                            <constraint firstItem="geb-yI-Tc8" firstAttribute="top" secondItem="vKJ-vi-SmM" secondAttribute="topMargin" id="Do1-ML-Qwp"/>
+                            <constraint firstItem="geb-yI-Tc8" firstAttribute="leading" secondItem="vKJ-vi-SmM" secondAttribute="leadingMargin" id="KXw-A1-pwY"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="geb-yI-Tc8" secondAttribute="trailing" id="QQM-Xd-a3N"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="scrollOfsubView" destination="egd-a7-H8r" id="cj5-sL-rcb"/>
+                        <outlet property="searchButtun" destination="ldK-KF-OYR" id="49O-g1-7e0"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="7Vl-s9-TOW" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1909" y="602"/>
+        </scene>
         <!--First View Controller-->
         <scene sceneID="8c0-0d-2KP">
             <objects>
@@ -20,6 +79,7 @@
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pYj-fV-dCb">
                                 <rect key="frame" x="297" y="125" width="88" height="35"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="tintColor" red="0.87007358089999998" green="0.87007358089999998" blue="0.87007358089999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="tinted" title="検索する"/>
                                 <connections>
@@ -38,26 +98,26 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="tertiarySystemGroupedBackgroundColor"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" automaticEstimatedItemSize="YES" minimumLineSpacing="10" minimumInteritemSpacing="10" id="pgL-gv-IHj">
-                                    <size key="itemSize" width="127" height="115"/>
+                                    <size key="itemSize" width="104" height="115"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="card" id="NMA-w9-D61" customClass="CardCell" customModule="YugiohProject" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="127" height="115"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="104" height="115"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <collectionViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="3MH-5L-JrF">
-                                            <rect key="frame" x="0.0" y="0.0" width="127" height="115"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="104" height="115"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uzq-3b-sqw">
-                                                    <rect key="frame" x="8" y="19" width="98" height="81"/>
+                                                    <rect key="frame" x="0.0" y="17" width="95" height="90"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 </imageView>
                                             </subviews>
                                         </collectionViewCellContentView>
-                                        <size key="customSize" width="127" height="115"/>
+                                        <size key="customSize" width="104" height="115"/>
                                         <connections>
                                             <outlet property="cardImage" destination="uzq-3b-sqw" id="f1c-e2-bGi"/>
                                         </connections>
@@ -79,9 +139,20 @@
                                 <color key="barTintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="selectedImageTintColor" systemColor="tertiarySystemBackgroundColor"/>
                             </tabBar>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Pfd-tc-qSh">
+                                <rect key="frame" x="0.0" y="83" width="88" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" systemColor="tertiarySystemGroupedBackgroundColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="絞り込む"/>
+                                <connections>
+                                    <segue destination="Duz-Z8-5h4" kind="presentation" identifier="" id="TDo-OK-CxB"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="2H5-sw-wef"/>
-                        <color key="backgroundColor" red="0.079917032360000001" green="0.1217901992" blue="0.24664237789999999" alpha="0.88384885199999996" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <connections>
                         <outlet property="collectionView" destination="Vjw-0y-Kxu" id="Sm8-lr-sXv"/>
@@ -92,7 +163,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8WF-UC-1J4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-976.33587786259534" y="453.52112676056339"/>
+            <point key="canvasLocation" x="-972" y="406"/>
         </scene>
         <!--Detail Card-->
         <scene sceneID="oVQ-4t-Ztk">
@@ -105,12 +176,14 @@
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UUG-4F-GWj">
                                 <rect key="frame" x="277" y="32" width="88" height="35"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="メニュー"/>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sa9-UO-y6J">
                                 <rect key="frame" x="0.0" y="75" width="393" height="508"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
                             </imageView>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="uVK-d3-gx0">
                                 <rect key="frame" x="0.0" y="580" width="393" height="135"/>
@@ -147,18 +220,42 @@
                                     <outlet property="delegate" destination="tDn-EO-UVb" id="eXL-Bx-Db8"/>
                                 </connections>
                             </collectionView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iio-T9-ckd">
+                                <rect key="frame" x="10" y="32" width="56" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="戻る"/>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="kqW-TR-kMj"/>
                         <color key="backgroundColor" systemColor="tertiarySystemGroupedBackgroundColor"/>
+                        <gestureRecognizers/>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="Mn3-w7-oz6" appends="YES" id="Byz-U2-O22"/>
+                            <outletCollection property="gestureRecognizers" destination="qd5-3z-2pR" appends="YES" id="X65-3h-Ecj"/>
+                        </connections>
                     </view>
                     <connections>
                         <outlet property="collectionView2" destination="uVK-d3-gx0" id="yvy-H5-who"/>
                         <outlet property="imageView" destination="Sa9-UO-y6J" id="5Ko-kM-A8f"/>
+                        <outlet property="swipeLeft" destination="qd5-3z-2pR" id="Hdy-Et-BYI"/>
+                        <outlet property="swiperight" destination="Mn3-w7-oz6" id="tO2-99-hbK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JmQ-Wc-krm" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <swipeGestureRecognizer direction="right" id="Mn3-w7-oz6">
+                    <connections>
+                        <action selector="swipeRightAct:" destination="tDn-EO-UVb" id="hRj-RY-P1C"/>
+                    </connections>
+                </swipeGestureRecognizer>
+                <swipeGestureRecognizer direction="left" id="qd5-3z-2pR">
+                    <connections>
+                        <action selector="swipeLeftAct:" destination="tDn-EO-UVb" id="hK5-An-w1x"/>
+                    </connections>
+                </swipeGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="-60" y="454"/>
+            <point key="canvasLocation" x="-71" y="469"/>
         </scene>
         <!--Third View Controller-->
         <scene sceneID="Dox-r2-gSn">
