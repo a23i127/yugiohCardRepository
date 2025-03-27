@@ -6,7 +6,6 @@
 //
 import Foundation
 import UIKit
-
 class SecondViewController: UIViewController {
     @IBOutlet weak var logButton: UIButton!
     @IBOutlet weak var diceButton: UIButton!
@@ -21,6 +20,8 @@ class SecondViewController: UIViewController {
     @IBOutlet weak var resultLabel: UILabel!
     var player1LP: Int = 8000
     var player2LP: Int = 8000
+    var player1Logs: [String] = []
+    var player2Logs: [String] = []
     var inputValue: String = ""
     var amount: Int {
         return Int(inputValue) ?? 0
@@ -60,21 +61,15 @@ class SecondViewController: UIViewController {
     @IBAction func lpButtontaped(_ sender: UIButton) {
         if let selectedPlayer = Player(rawValue: sender.tag) {
             currentPlayer = selectedPlayer
-            updateLifePointDisplay()
-            clearInput()
-            clearOperation()
-            clearresultPoint()
-            updateUI()
+            clearAll()
+            sender.backgroundColor = .brown
            }
     }
     @IBAction func numberButtonTapped(_ sender: UIButton) {
         guard let digit = sender.titleLabel?.text else { return }
         // 入力の上限など制限したければここで調整
         inputValue += digit
-        updateLifePointDisplay()
-        updateAmountDisplay()
-        updateOperationLabel()
-        updateresultLabelDisplay()
+        updateAll()
     }
     @IBAction func operatorButtonTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
@@ -87,10 +82,26 @@ class SecondViewController: UIViewController {
             currentOperation = .half
         case "CRL":
             clearInput()
+            updateAll()
         default:
             break
         }
         updateOperationLabel()
+    }
+    func addLogEntry(_ entry: String, for player: Player) {
+        switch player {
+        case .player1:
+            player1Logs.append(entry)
+        case .player2:
+            player2Logs.append(entry)
+        }
+    }
+    func updateAll() {
+        updateAmountDisplay()
+        updateOperationLabel()
+        updateLifePointDisplay()
+        updateresultLabelDisplay()
+        updateUI()
     }
     func updateLifePointDisplay() {
         switch currentPlayer {
@@ -117,6 +128,34 @@ class SecondViewController: UIViewController {
             resultLabel.text = inputValue.isEmpty ? "" : "\(curentPlayerLifpoint() / 2)"
         }
     }
+    func updateUI() {
+        switch currentPlayer {
+        case .player1:
+            lifpoint1.setTitle("\(player1LP)", for: .normal)
+        case .player2:
+            lifpoint2.setTitle("\(player2LP)", for: .normal)
+        }
+    }
+    func clearAll() {
+        clearInput()
+        clearOperation()
+        clearresultPoint()
+        clearLifepoinLabel()
+        updateAmountDisplay() //inputが空ならlabelをクリアするため
+    }
+    func clearInput() {
+        inputValue = ""
+    }
+    func clearLifepoinLabel() {
+        lifpointLabel.text = ""
+    }
+    func clearOperation() {
+        currentOperation = .subtraction
+        operationLabel.text = ""
+    }
+    func clearresultPoint() {
+        resultLabel.text = ""
+    }
     @IBAction func applyButtonTapped() {
         switch currentOperation {
         case .addition:
@@ -124,30 +163,40 @@ class SecondViewController: UIViewController {
         case .subtraction:
             applyDamage(amount)
         case .half:
-            applyDamage(amount / 2)
+            applyHalfDamage()
         }
-        updateLifePointDisplay()
-        clearOperation()
-        clearresultPoint()
-        clearInput()
+        clearAll()
+        updateAll()
     }
     func applyDamage(_ amount: Int) {
         switch currentPlayer {
         case .player1:
             player1LP -= amount
+            addLogEntry("−\(amount) → \(player1LP)", for: .player1)
         case .player2:
             player2LP -= amount
+            addLogEntry("−\(amount) → \(player2LP)", for: .player2)
         }
-        updateUI()
     }
     func heal(_ amount: Int) {
         switch currentPlayer {
         case .player1:
             player1LP += amount
+            addLogEntry("+\(amount) → \(player1LP)", for: .player1)
         case .player2:
             player2LP += amount
+            addLogEntry("+\(amount) → \(player2LP)", for: .player2)
         }
-        updateUI()
+    }
+    func applyHalfDamage() {
+        switch currentPlayer {
+        case .player1:
+            player1LP /= 2
+            addLogEntry("/2 → \(player1LP)", for: .player1)
+        case .player2:
+            player2LP /= 2
+            addLogEntry("/2 → \(player2LP)", for: .player2)
+        }
     }
     func curentPlayerLifpoint() ->Int {
         switch currentPlayer {
@@ -159,26 +208,71 @@ class SecondViewController: UIViewController {
             return value
         }
     }
-    func clearInput() {
-        inputValue = ""
-        updateAmountDisplay()
+    @IBAction func logButtonTapped(_ sender: Any) {
+        showOverlay(message: "この内容をオーバーレイで表示するよ！")
     }
-    func clearOperation() {
-        currentOperation = .subtraction
-        updateOperationLabel()
-    }
-    func clearresultPoint() {
-        resultLabel.text = ""
-    }
-    func updateUI() {
-        switch currentPlayer {
-        case .player1:
-            lifpoint1.setTitle("\(player1LP)", for: .normal)
-            lifpoint1.backgroundColor = .systemBlue
-        case .player2:
-            lifpoint2.setTitle("\(player2LP)", for: .normal)
-            lifpoint2.backgroundColor = .lightGray
+    func showOverlay(message: String) {
+        // 背景ビュー（半透明の黒）
+        let backgroundView = UIView(frame: self.view.bounds)
+        backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        backgroundView.alpha = 0
+        backgroundView.tag = 999 // 削除用
+
+        // メインの白いビュー
+        let overlayView = UIView()
+        overlayView.backgroundColor = .white
+        overlayView.layer.cornerRadius = 16
+        overlayView.translatesAutoresizingMaskIntoConstraints = false
+
+        // ラベル
+        let label = UILabel()
+        label.text = message
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        // 閉じるボタン
+        let closeButton = UIButton(type: .system)
+        closeButton.setTitle("閉じる", for: .normal)
+        closeButton.addTarget(self, action: #selector(dismissOverlay), for: .touchUpInside)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+
+        // add & layout
+        overlayView.addSubview(label)
+        overlayView.addSubview(closeButton)
+        backgroundView.addSubview(overlayView)
+        self.view.addSubview(backgroundView)
+
+        // オートレイアウト
+        NSLayoutConstraint.activate([
+            overlayView.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor),
+            overlayView.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor),
+            overlayView.widthAnchor.constraint(equalToConstant: 300),
+            overlayView.heightAnchor.constraint(equalToConstant: 200),
+
+            label.topAnchor.constraint(equalTo: overlayView.topAnchor, constant: 20),
+            label.leadingAnchor.constraint(equalTo: overlayView.leadingAnchor, constant: 16),
+            label.trailingAnchor.constraint(equalTo: overlayView.trailingAnchor, constant: -16),
+
+            closeButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 20),
+            closeButton.centerXAnchor.constraint(equalTo: overlayView.centerXAnchor),
+            closeButton.bottomAnchor.constraint(equalTo: overlayView.bottomAnchor, constant: -20)
+        ])
+
+        // アニメーション表示
+        UIView.animate(withDuration: 0.3) {
+            backgroundView.alpha = 1
         }
-        updateAmountDisplay()
+    }
+
+    @objc func dismissOverlay() {
+        if let overlay = self.view.viewWithTag(999) {
+            UIView.animate(withDuration: 0.2, animations: {
+                overlay.alpha = 0
+            }) { _ in
+                overlay.removeFromSuperview()
+            }
+        }
     }
 }
+
