@@ -20,8 +20,6 @@ class SecondViewController: UIViewController {
     @IBOutlet weak var resultLabel: UILabel!
     var player1LP: Int = 8000
     var player2LP: Int = 8000
-    var player1Logs: [String] = []
-    var player2Logs: [String] = []
     var inputValue: String = ""
     var amount: Int {
         return Int(inputValue) ?? 0
@@ -47,8 +45,15 @@ class SecondViewController: UIViewController {
             }
         }
     }
+    struct LogItem {
+        let player: Player
+        let message: String
+        let timestamp: Date  // 時間で並べ替えもできる
+    }
+    var logs: [LogItem] = []
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("view.backgroundColor = \(String(describing: view.backgroundColor))")
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -91,9 +96,9 @@ class SecondViewController: UIViewController {
     func addLogEntry(_ entry: String, for player: Player) {
         switch player {
         case .player1:
-            player1Logs.append(entry)
+            logs.append(LogItem(player: .player1, message: entry, timestamp: Date()))
         case .player2:
-            player2Logs.append(entry)
+            logs.append(LogItem(player: .player2, message: entry, timestamp: Date()))
         }
     }
     func updateAll() {
@@ -209,62 +214,89 @@ class SecondViewController: UIViewController {
         }
     }
     @IBAction func logButtonTapped(_ sender: Any) {
-        showOverlay(message: "この内容をオーバーレイで表示するよ！")
+        showOverlay()
     }
-    func showOverlay(message: String) {
+    func showOverlay() {
         // 背景ビュー（半透明の黒）
+        // デバッグ用ログを強制追加
         let backgroundView = UIView(frame: self.view.bounds)
         backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0.5)
         backgroundView.alpha = 0
         backgroundView.tag = 999 // 削除用
-
         // メインの白いビュー
         let overlayView = UIView()
-        overlayView.backgroundColor = .white
         overlayView.layer.cornerRadius = 16
         overlayView.translatesAutoresizingMaskIntoConstraints = false
-
         // ラベル
-        let label = UILabel()
-        label.text = message
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        // 2. スタックビュー（縦方向）
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        overlayView.backgroundColor = .green.withAlphaComponent(0.4)
+        stackView.backgroundColor = .blue.withAlphaComponent(0.4)
+        let testLabel = UILabel()
+        testLabel.text = "ログ"
+        testLabel.textAlignment = .center
+        testLabel.numberOfLines = 0
+        testLabel.textColor = .black
+        stackView.addArrangedSubview(testLabel)
+        for log in logs {
+            let label = UILabel()
+            switch log.player {
+            case .player1:
+                
+                label.text = "P1: \(log.message)"
+            case .player2:
+                label.text = "P2: \(log.message)"
+            }
+            label.textAlignment = .center
+            label.numberOfLines = 0
+            label.translatesAutoresizingMaskIntoConstraints = false
+            label.textColor = .black
+            stackView.addArrangedSubview(label)
+        }
         // 閉じるボタン
         let closeButton = UIButton(type: .system)
         closeButton.setTitle("閉じる", for: .normal)
         closeButton.addTarget(self, action: #selector(dismissOverlay), for: .touchUpInside)
         closeButton.translatesAutoresizingMaskIntoConstraints = false
-
+        closeButton.tintColor = .black
         // add & layout
-        overlayView.addSubview(label)
+        scrollView.addSubview(stackView)
+        overlayView.addSubview(scrollView)
         overlayView.addSubview(closeButton)
         backgroundView.addSubview(overlayView)
         self.view.addSubview(backgroundView)
-
         // オートレイアウト
         NSLayoutConstraint.activate([
+            // overlayView の配置
             overlayView.centerXAnchor.constraint(equalTo: backgroundView.centerXAnchor),
             overlayView.centerYAnchor.constraint(equalTo: backgroundView.centerYAnchor),
             overlayView.widthAnchor.constraint(equalToConstant: 300),
-            overlayView.heightAnchor.constraint(equalToConstant: 200),
-
-            label.topAnchor.constraint(equalTo: overlayView.topAnchor, constant: 20),
-            label.leadingAnchor.constraint(equalTo: overlayView.leadingAnchor, constant: 16),
-            label.trailingAnchor.constraint(equalTo: overlayView.trailingAnchor, constant: -16),
-
-            closeButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 20),
+            overlayView.heightAnchor.constraint(equalToConstant: 300),
+            // scrollView の配置
+            scrollView.topAnchor.constraint(equalTo: overlayView.topAnchor, constant: 20),
+            scrollView.leadingAnchor.constraint(equalTo: overlayView.leadingAnchor, constant: 20),
+            scrollView.trailingAnchor.constraint(equalTo: overlayView.trailingAnchor, constant: -20),
+            scrollView.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -20),
+            // stackView の中身制約
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            // 閉じるボタン
             closeButton.centerXAnchor.constraint(equalTo: overlayView.centerXAnchor),
             closeButton.bottomAnchor.constraint(equalTo: overlayView.bottomAnchor, constant: -20)
         ])
-
         // アニメーション表示
         UIView.animate(withDuration: 0.3) {
             backgroundView.alpha = 1
         }
     }
-
     @objc func dismissOverlay() {
         if let overlay = self.view.viewWithTag(999) {
             UIView.animate(withDuration: 0.2, animations: {
