@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-class sinkuroViewController: UIViewController {
+class sinkuroViewController: UIViewController,UIScrollViewDelegate {
     @IBOutlet weak var monster1: UIImageView!
     @IBOutlet weak var monster2: UIImageView!
     @IBOutlet weak var backgroundImage: UIImageView!
@@ -15,6 +15,14 @@ class sinkuroViewController: UIViewController {
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var monster3: UIImageView!
     @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var monster4: UIImageView!
+    @IBOutlet weak var monster5: UIImageView!
+    @IBOutlet weak var fireImage1: UIImageView!
+    @IBOutlet weak var fireImage2: UIImageView!
+    @IBOutlet weak var fireImage3: UIImageView!
+    @IBOutlet weak var fireImage4: UIImageView!
+    var originalX1: CGFloat = 0
+    var originalY1: CGFloat = 0
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.contentMode = .scaleAspectFill
@@ -29,12 +37,16 @@ class sinkuroViewController: UIViewController {
         }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        //backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
+        originalX1 = fireImage1.frame.origin.x
+            originalY1 = fireImage1.frame.origin.y
+        backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
         self.animateText( on: self.textView)
         playSynchroExplosionAndTransition()
         DispatchQueue.main.asyncAfter(deadline: .now()+4.5) {
             self.backgroundImage.isHidden = false
             self.animateCharacter()
+            let position = self.fireImage1.frame.origin
+            print(position)
         }
         DispatchQueue.main.asyncAfter(deadline: .now()+6.5) {
             self.animateCharacter2()
@@ -42,6 +54,20 @@ class sinkuroViewController: UIViewController {
         DispatchQueue.main.asyncAfter(deadline: .now()+7.5) {
             self.animateCharacter3()
         }
+    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {//パララックス
+        let offsetY = scrollView.contentOffset.y
+        
+        // 隕石の動き（速く落ちるように倍率大きめにする）
+        if offsetY > 700  {
+            let newY = offsetY * 0.1          // 下に落ちる（Y方向）
+            let newX = -offsetY * 0.1         // 左に流れる（X方向にマイナス）
+            
+            fireImage1.frame.origin = CGPoint(x: originalX1 + newX,
+                                              y: originalY1 + newY)
+           
+        }
+          // ← 調整ポイント！
     }
     func animateCharacter() {
         // 斜め右下に向かう位置に制約を変える
