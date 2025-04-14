@@ -13,29 +13,18 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
     @IBOutlet weak var backgroundImage: UIImageView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var contentView: UIView!
-    @IBOutlet weak var monster3: UIImageView!
     @IBOutlet weak var textView: UITextView!
-    @IBOutlet weak var monster4: UIImageView!
-    @IBOutlet weak var monster5: UIImageView!
-    @IBOutlet weak var fireImage1: UIImageView!
-    @IBOutlet weak var fireImage2: UIImageView!
-    @IBOutlet weak var fireImage3: UIImageView!
-    @IBOutlet weak var fireImage4: UIImageView!
-    @IBOutlet weak var fireImage5: UIImageView!
-    @IBOutlet weak var monster6: UIImageView!
-    @IBOutlet weak var monster7: UIImageView!
-    
+    @IBOutlet weak var tyunar1: UIImageView!
+    @IBOutlet weak var tyunar2: UIImageView!
+    @IBOutlet weak var monstar6: UIImageView!
+    @IBOutlet weak var cercleImage1: UIImageView!
+    @IBOutlet weak var cercleImage2: UIImageView!
+    @IBOutlet weak var reftWing: UIImageView!
+    @IBOutlet weak var rightWing: UIImageView!
+    @IBOutlet weak var jankuSinkuron: UIImageView!
+    @IBOutlet weak var jankuSpeader: UIImageView!
     //パララックスのため
-    var originalX1: CGFloat = 0
-    var originalY1: CGFloat = 0
-    var originalX2: CGFloat = 0
-    var originalY2: CGFloat = 0
-    var originalX3: CGFloat = 0
-    var originalY3: CGFloat = 0
-    var originalX4: CGFloat = 0
-    var originalY4: CGFloat = 0
-    var originalX5: CGFloat = 0
-    var originalY5: CGFloat = 0
+    var hasAnimatedMonster4 = false
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.contentMode = .scaleAspectFill
@@ -45,71 +34,37 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
         backgroundImage.isHidden = true
         monster1.alpha = 0
         monster2.alpha = 0
-        monster3.alpha = 0
-        monster4.alpha = 0
-        monster5.alpha = 0
-        monster6.alpha = 0
-        monster7.alpha = 0
+        monstar6.alpha = 0
+        jankuSpeader.alpha = 0
+        jankuSinkuron.alpha = 0
         textView.alpha = 0
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         //パララックスのため
-        originalX1 = fireImage1.frame.origin.x
-        originalY1 = fireImage1.frame.origin.y
-        originalX2 = fireImage2.frame.origin.x
-        originalY2 = fireImage2.frame.origin.y
-        originalX3 = fireImage3.frame.origin.x
-        originalY3 = fireImage3.frame.origin.y
-        originalX4 = fireImage4.frame.origin.x
-        originalY4 = fireImage4.frame.origin.y
-        originalX5 = fireImage5.frame.origin.x
-        originalY5 = fireImage5.frame.origin.y
         backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
         self.animateText( on: self.textView)
-        playSynchroExplosionAndTransition()
+        //playSynchroExplosionAndTransition()
         DispatchQueue.main.asyncAfter(deadline: .now()+4.5) {
             self.backgroundImage.isHidden = false
-            self.animateCharacter()
+            //self.animateCharacter()
         }
         DispatchQueue.main.asyncAfter(deadline: .now()+6.5) {
-            self.animateCharacter2()
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now()+7.5) {
-            self.animateCharacter3()
+            //self.animateCharacter2(imageView: self.monster2, color: .blue)
         }
     }
+    @IBAction func introduceAction(_ sender: Any) {
+        self.animateSynchroLineUp()
+    }
     func scrollViewDidScroll(_ scrollView: UIScrollView) {//パララックス
-        let offsetY = scrollView.contentOffset.y
-        if offsetY > 500 {
+        var offsetY = scrollView.contentOffset.y
+        if offsetY > 500 && !hasAnimatedMonster4 {
+                hasAnimatedMonster4 = true // もう呼ばせないようにフラグON
             
-        }
+            }
         // 隕石の動き（速く落ちるように倍率大きめにする）
         if offsetY > 750  {
-            let newY1 = offsetY * 0.4         // 下に落ちる（Y方向）
-            let newX1 = -offsetY * 0.1
-            let newY2 = offsetY * 0.2         // 下に落ちる（Y方向）
-            let newX2 = -offsetY * 0.06
-            let newY3 = offsetY * 0.04          // 下に落ちる（Y方向）
-            let newX3 = -offsetY * 0.1
-            let newY4 = offsetY * 0.2          // 下に落ちる（Y方向）
-            let newX4 = -offsetY * 0.15// 左に流れる（X方向にマイナス）
-            let newY5 = offsetY * 0.1          // 下に落ちる（Y方向）
-            let newX5 = -offsetY * 0.15
-            fireImage1.frame.origin = CGPoint(x: originalX1 + newX1,
-                                              y: originalY1 + newY1)
-            fireImage2.frame.origin = CGPoint(x: originalX2 + newX2,
-                                              y: originalY2 + newY2)
-            fireImage3.frame.origin = CGPoint(x: originalX3 + newX3,
-                                              y: originalY3 + newY3)
-            fireImage4.frame.origin = CGPoint(x: originalX4 + newX4,
-                                              y: originalY4 + newY4)
-            fireImage5.frame.origin = CGPoint(x: originalX5 + newX5,
-                                              y: originalY5 + newY5)
-            
         }
-            
-        // ← 調整ポイント！
     }
     func animateCharacter() {
         // 斜め右下に向かう位置に制約を変える
@@ -131,30 +86,16 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
             completion: nil
         )
     }
-    func animateCharacter2() {
-        contentView.addSubview(monster2)
-        monster2.transform = .identity
-        
-        // ステップ1：移動（スケール1.0）
-        UIView.animate(withDuration: 1.0,animations: {
-            //self.monster2.transform = CGAffineTransform(scaleX: 2.5, y: 2.5)
-            self.monster2.alpha = 1  // 徐々に表示される
-            self.auraPlas(imageView: self.monster2, color: .blue)
-            self.floatAction(imageView: self.monster2)
+    func animateCharacter2(imageView: UIImageView, color: UIColor = .blue) {
+        imageView.transform = .identity
+        imageView.alpha = 0
+        contentView.addSubview(imageView)
+        UIView.animate(withDuration: 1.0, animations: {
+            imageView.alpha = 1
+            self.auraPlas(imageView: imageView, color: color)
+            self.floatAction(imageView: imageView)
         })
     }
-    func animateCharacter3() {
-        // 斜め右下に向かう位置に制約を変える
-        contentView.addSubview(monster3)
-        monster3.transform = CGAffineTransform.identity
-        UIView.animate(withDuration: 1.0,animations: {
-            //self.monster2.transform = CGAffineTransform(scaleX: 2.5, y: 2.5)
-            self.monster3.alpha = 1  // 徐々に表示される
-            self.auraPlas(imageView: self.monster3, color: .yellow)
-            self.floatAction(imageView: self.monster3)
-        })
-    }
-    
     func playSynchroExplosionAndTransition() {
         let centerPoint = view.center
         // グリーンフラッシュの土台ビュー
@@ -269,4 +210,81 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
             }
         }
     }
-}
+    func animateSynchroLineUp() {
+        let centerX = view.center.x
+        let centerY = view.center.y
+
+        // ステップ1：モンスター画像を一直線に並べる
+        UIView.animate(withDuration: 0.5, animations: {
+            print("今のスレッド：\(Thread.isMainThread ? "メイン" : "バックグラウンド")")
+            self.tyunar1.center = CGPoint(x: centerX, y: centerY + 750)
+            self.tyunar2.center = CGPoint(x: centerX, y: centerY + 1000)
+        }, completion: { _ in
+            // ステップ2：並んだ後に光の線を出現！
+            self.showRisingLightLineWithExplosion()
+        })
+    }
+    func showRisingLightLineWithExplosion() {
+        let lightLine = UIView()
+        lightLine.backgroundColor = UIColor.white.withAlphaComponent(0.8)
+        let lineWidthStart: CGFloat = 2
+        let lineWidthMid: CGFloat = 150
+        let lineHeight: CGFloat = 852
+        let startY = view.bounds.height
+        let endY = view.bounds.height - lineHeight
+        // 最初の細い線（下から登場）
+        lightLine.frame = CGRect(x: view.bounds.midX - lineWidthStart / 2,
+                                 y: startY,
+                                 width: lineWidthStart,
+                                 height: lineHeight)
+        view.addSubview(lightLine)
+        // Step 1: 上にスライド（太さは変えない）
+        UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseOut], animations: {
+            lightLine.frame.origin.y = endY
+        }, completion: { _ in
+            // Step 2: ゆっくり太くなっていく
+            UIView.animate(withDuration: 1.2, delay: 0, options: [.curveEaseInOut], animations: {
+                lightLine.frame = CGRect(x: self.view.bounds.midX - lineWidthMid / 2,
+                                         y: endY,
+                                         width: lineWidthMid,
+                                         height: lineHeight)
+            }, completion: { _ in
+                // Step 3: 一気に爆発（画面全体を覆う）
+                let finalSize: CGFloat = max(self.view.bounds.width, self.view.bounds.height) * 2
+
+                UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseOut], animations: {
+                    lightLine.frame = CGRect(x: self.view.bounds.midX - finalSize / 2,
+                                             y: self.view.bounds.midY - finalSize / 2,
+                                             width: finalSize,
+                                             height: finalSize)
+                    lightLine.layer.cornerRadius = finalSize / 2
+                    lightLine.alpha = 0.0// フェードアウトで爆発の余韻を出す
+                    self.cercleImage1.alpha = 0
+                    self.cercleImage2.alpha = 0
+                    self.tyunar1.alpha = 0
+                    self.tyunar2.alpha = 0
+                }, completion: { _ in
+                    lightLine.removeFromSuperview()
+                    self.animateCharacter2(imageView: self.monstar6)
+                    self.gentleFlap(view: self.reftWing, isLeftWing: true)
+                    self.gentleFlap(view: self.rightWing, isLeftWing: false)
+                })
+            })
+        })
+    }
+    func gentleFlap(view: UIView, isLeftWing: Bool) {
+        let animation = CAKeyframeAnimation(keyPath: "transform.rotation.z")
+
+        // とても小さな回転角（約6度）
+        let angle: CGFloat = isLeftWing ? -CGFloat.pi / 30 : CGFloat.pi / 30
+
+        // やさしく開いて、戻るだけ（揺らぎ少なめ）
+        animation.values = [0, angle, 0]
+        animation.keyTimes = [0.0, 0.5, 1.0] as [NSNumber]
+
+        animation.duration = 3.5  // ゆっくりふんわり
+        animation.repeatCount = .infinity
+        animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+
+        view.layer.add(animation, forKey: "gentleFlap")
+    }}
