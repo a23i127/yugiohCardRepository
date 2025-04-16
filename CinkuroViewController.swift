@@ -9,7 +9,6 @@ import Foundation
 import UIKit
 class sinkuroViewController: UIViewController,UIScrollViewDelegate {
     @IBOutlet weak var monster1: UIImageView!
-    @IBOutlet weak var monster2: UIImageView!
     @IBOutlet weak var backgroundImage: UIImageView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var contentView: UIView!
@@ -25,52 +24,77 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
     @IBOutlet weak var jankuSpeader: UIImageView!
     @IBOutlet weak var lebel3Image: UIImageView!
     @IBOutlet weak var lebel5Image: UIImageView!
+    @IBOutlet weak var teacher: UIImageView!
+    @IBOutlet weak var textView1: UITextView!
+    @IBOutlet weak var textView2: UITextView!
+    @IBOutlet weak var textView3: UITextView!
     var animationFlag = false
+    var animationFlag2 = false
     override func viewDidLoad() {
         super.viewDidLoad()
+        textView1.layer.masksToBounds = true
         backgroundImage.contentMode = .scaleAspectFill
         backgroundImage.clipsToBounds = true
         backgroundImage.frame = scrollView.bounds
         self.contentView.insertSubview(self.backgroundImage, at: 0)
         backgroundImage.isHidden = true
         monster1.alpha = 0
-        monster2.alpha = 0
         monstar6.alpha = 0
         textView.alpha = 0
         cercleImage1.alpha = 0
         cercleImage2.alpha = 0
         leftWing.alpha = 0
         rightWing.alpha = 0
+        textView1.alpha = 0
+        textView2.alpha = 0
+        textView3.alpha = 0
+        tyunar1.alpha = 0
+        tyunar2.alpha = 0
+        lebel3Image.alpha = 0
+        lebel5Image.alpha = 0
+        jankuSinkuron.alpha = 0
+        jankuSpeader.alpha = 0
         contentView.bringSubviewToFront(tyunar1)
         contentView.bringSubviewToFront(tyunar2)
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
-        self.animateText( on: self.textView)
-        playSynchroExplosionAndTransition()
+        //playSynchroExplosionAndTransition()
         DispatchQueue.main.asyncAfter(deadline: .now()+4.5) {
             self.backgroundImage.isHidden = false
             self.animateCharacter(monster: self.monster1, color: .red)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now()+6.5) {
-            self.animateCharacter(monster: self.monster2, color: .blue)
-        }
+        textViewsCustom(textView: textView)
+        textViewsCustom(textView: textView1)
+        textViewsCustom(textView: textView2)
+        textViewsCustom(textView: textView3)
     }
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        var offsetY = scrollView.contentOffset.y
-        // 隕石の動き（速く落ちるように倍率大きめにする）
-        if offsetY > 873 && !animationFlag  {
+        let offsetY = scrollView.contentOffset.y
+        let viewHeight = scrollView.frame.height
+        let scrollRatio = offsetY / viewHeight  // ← これがポイント！
+        switch true {
+        case scrollRatio > 0.4 && !animationFlag:
+            jankuSinkuron.alpha = 1
+            jankuSpeader.alpha = 1
             changeClearColor(monsterView: jankuSinkuron)
             changeClearColor(monsterView: jankuSpeader)
-            DispatchQueue.main.asyncAfter(deadline: .now()+1.5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 self.tyunar1.alpha = 0
                 self.tyunar2.alpha = 0
                 self.animateSynchroLineUp()
             }
             animationFlag = true
+        case scrollRatio > 0.8 && !animationFlag2:
+            animateCharacter(monster: teacher, color: .red)
+            animateTextView(on: textView)
+            animationFlag2 = true
+        default:
+            break
         }
     }
+    
     func animateCharacter(monster: UIImageView, color: UIColor) {
         // 斜め右下に向かう位置に制約を変える
         contentView.addSubview(monster)
@@ -88,7 +112,19 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
                 self.auraPlas(imageView: monster, color: color)
                 self.floatAction(imageView: monster)
             },
-            completion: nil
+            completion: {_ in 
+                self.animateTextView( on: self.textView1)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    self.animateTextView( on: self.textView2)
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    self.animateTextView( on: self.textView3)
+                }
+                self.tyunar1.alpha = 1
+                self.tyunar2.alpha = 1
+                self.lebel3Image.alpha = 1
+                self.lebel5Image.alpha = 1
+            }
         )
     }
     func sinkuroSumoon() {
@@ -216,12 +252,12 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
         float.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         imageView.layer.add(float, forKey: "float")
     }
-    func animateText(on textView: UITextView, interval: TimeInterval = 0.05) {
+    func animateTextView(on textView: UITextView, interval: TimeInterval = 0.02) {
         guard let fullText = textView.text else { return }
         textView.text = ""  // 一旦非表示にして、あとから1文字ずつ表示
         var charIndex = 0
-        UIView.animate(withDuration: 1.0,animations: {
-            self.textView.alpha = 1  // 徐々に表示される
+        UIView.animate(withDuration: 0.3,animations: {
+            textView.alpha = 1  // 徐々に表示される
         })
         Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { timer in
             let index = fullText.index(fullText.startIndex, offsetBy: charIndex)
@@ -230,21 +266,19 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
             
             if charIndex == fullText.count {
                 timer.invalidate()
-                textView.alpha = 0
             }
         }
     }
     func animateSynchroLineUp() {
         let centerX = view.center.x
         let centerY = view.center.y
-
+        
         // ステップ1：モンスター画像を一直線に並べる
-        UIView.animate(withDuration: 0.5, animations: {
-            print("今のスレッド：\(Thread.isMainThread ? "メイン" : "バックグラウンド")")
-            self.jankuSinkuron.center = CGPoint(x: centerX, y: centerY + 750)
-            self.jankuSpeader.center = CGPoint(x: centerX, y: centerY + 1000)
-            self.lebel3Image.center = CGPoint(x: centerX - 50, y: centerY + 1150)
-            self.lebel5Image.center = CGPoint(x: centerX + 50, y: centerY + 1150)
+        UIView.animate(withDuration: 0.8, animations: {
+            self.jankuSinkuron.center = CGPoint(x: centerX, y: centerY + 550)
+            self.jankuSpeader.center = CGPoint(x: centerX, y: centerY + 700)
+            self.lebel3Image.center = CGPoint(x: centerX - 160, y: centerY + 76)
+            self.lebel5Image.center = CGPoint(x: centerX - 60, y: centerY - 140)
         }, completion: { _ in
             // ステップ2：並んだ後に光の線を出現！
             self.showRisingLightLineWithExplosion()
@@ -277,7 +311,7 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
             }, completion: { _ in
                 // Step 3: 一気に爆発（画面全体を覆う）
                 let finalSize: CGFloat = max(self.view.bounds.width, self.view.bounds.height) * 2
-
+                
                 UIView.animate(withDuration: 0.3, delay: 0, options: [.curveEaseOut], animations: {
                     lightLine.frame = CGRect(x: self.view.bounds.midX - finalSize / 2,
                                              y: self.view.bounds.midY - finalSize / 2,
@@ -302,14 +336,26 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
         let animation = CAKeyframeAnimation(keyPath: "transform.rotation.z")
         // とても小さな回転角（約6度）
         let angle: CGFloat = isLeftWing ? -CGFloat.pi / 30 : CGFloat.pi / 30
-
+        
         // やさしく開いて、戻るだけ（揺らぎ少なめ）
         animation.values = [0, angle, 0]
         animation.keyTimes = [0.0, 0.5, 1.0] as [NSNumber]
-
+        
         animation.duration = 3.5  // ゆっくりふんわり
         animation.repeatCount = .infinity
         animation.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-
+        
         view.layer.add(animation, forKey: "gentleFlap")
-    }}
+    }
+    func textViewsCustom(textView: UITextView) {
+        textView.layer.cornerRadius = 12
+        textView.backgroundColor = UIColor(white: 1.0, alpha: 0.1) // 半透明でクール
+        textView.layer.cornerRadius = 12
+        textView.layer.borderWidth = 1
+        textView.layer.borderColor = UIColor.black.withAlphaComponent(0.5).cgColor
+        textView.layer.masksToBounds = true
+        
+        textView.textContainerInset = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16) // 内側の余白
+        textView.isEditable = false
+    }
+}
