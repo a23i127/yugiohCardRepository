@@ -9,10 +9,16 @@ import Foundation
 import UIKit
 class TestViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var imageView2: UIImageView!
     @IBOutlet weak var backgroundImage: UIImageView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var contentView: UIView!
+    @IBOutlet weak var exsMonster: UIImageView!
+    @IBOutlet weak var exsMonsterArm: UIImageView!
+    @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var textView2: UITextView!
+    @IBOutlet weak var textView3: UITextView!
+    @IBOutlet weak var monsterStackView: UIStackView!
+    @IBOutlet weak var monsterStackView2: UIStackView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,11 +29,26 @@ class TestViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         //backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
-        contentView.insertSubview(backgroundImage, at: 0)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            
+        let textViews: [UITextView] = [textView,textView2,textView3]
+        backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
+        for tv in textViews {
+            textViewsCustom(textView: tv)
         }
+        animateCharacter(monster: exsMonster, color: .yellow)
+        animateHand()
     }
+    func textViewsCustom(textView: UITextView) {
+        textView.layer.cornerRadius = 12
+        textView.backgroundColor = UIColor(white: 1.0, alpha: 0.8) // 半透明でクール
+        textView.layer.cornerRadius = 12
+        textView.layer.borderWidth = 1
+        textView.layer.borderColor = UIColor.black.withAlphaComponent(0.5).cgColor
+        textView.layer.masksToBounds = true
+        
+        textView.textContainerInset = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16) // 内側の余白
+        textView.isEditable = false
+    }
+    
     func animateCharacter(monster: UIImageView, color: UIColor) {
         // 斜め右下に向かう位置に制約を変える
         contentView.addSubview(monster)
@@ -48,6 +69,14 @@ class TestViewController: UIViewController {
             completion: {_ in
             }
         )
+    }
+    func animateHand() {
+        UIView.animate(withDuration: 3.5,
+                       delay: 0,
+                       options: [.autoreverse, .repeat],
+                       animations: {
+            self.exsMonsterArm.transform = CGAffineTransform(translationX: 0, y: -5)
+        }, completion: nil)
     }
     func auraPlas(imageView: UIImageView,color: UIColor) {
         imageView.layer.shadowColor = color.cgColor     // オーラの色
@@ -79,7 +108,7 @@ class TestViewController: UIViewController {
         let scrollRatio = offsetY / viewHeight  // ← これがポイント！
         switch true {
         case scrollRatio > 0.1 && !animationFlag:
-            self.appearView( on: self.apealView)
+                self.appearView( on: self.apealView)
             animationFlag = true
         case scrollRatio > 0.2 && !animationFlag2:
             self.appearView( on: self.textView8)
