@@ -14,7 +14,7 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var textView: UITextView!
     @IBOutlet weak var tyunar1: UIImageView!
-    @IBOutlet weak var tyunar2: UIImageView!
+    @IBOutlet weak var monster1: UIImageView!
     @IBOutlet weak var monstar6: UIImageView!
     @IBOutlet weak var leftWing: UIImageView!
     @IBOutlet weak var rightWing: UIImageView!
@@ -35,6 +35,9 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
     @IBOutlet weak var tyunarLabel: UILabel!
     @IBOutlet weak var monstarLabel: UILabel!
     @IBOutlet weak var lebel8Image: UIImageView!
+    @IBOutlet weak var textViewHeihtConst1: NSLayoutConstraint!
+    @IBOutlet weak var textViewHeihtConst2: NSLayoutConstraint!
+    @IBOutlet weak var textViewHeihtConst3: NSLayoutConstraint!
     var animationFlag = false
     var animationFlag2 = false
     var animationFlag3 = false
@@ -57,27 +60,28 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
         textView8.alpha = 0
         apealView.alpha = 0
         tyunar1.alpha = 0
-        tyunar2.alpha = 0
+        monster1.alpha = 0
         lebel3Image.alpha = 0
         lebel5Image.alpha = 0
         jankuSinkuron.alpha = 0
         jankuSpeader.alpha = 0
         lebel8Image.alpha = 0
         contentView.bringSubviewToFront(tyunar1)
-        contentView.bringSubviewToFront(tyunar2)
+        contentView.bringSubviewToFront(monster1)
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let textViews: [UITextView] = [textView1, textView3, textView4, textView6, textView7, textView8, textView9]
+        let textViews: [UITextView] = [textView1, textView3, textView4, textView7, textView9]
         backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
-        appearTitleLog(on: self.view)
+        contentView.sendSubviewToBack(backgroundImage)
+            appearTitleLog(on: self.view)
         for tv in textViews {
             textViewsCustom(textView: tv)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
             self.appearView( on: self.textView6)
             self.tyunar1.alpha = 1
-            self.tyunar2.alpha = 1
+            self.monster1.alpha = 1
             self.lebel3Image.alpha = 1
             self.lebel5Image.alpha = 1
         }
@@ -112,6 +116,18 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
         }
     }
     func textViewsCustom(textView: UITextView) {
+        let fittingSize = CGSize(width: textView.frame.width, height: .greatestFiniteMagnitude)
+        let size = textView.sizeThatFits(fittingSize)
+        switch textView {
+        case textView1:
+            textViewHeihtConst1.constant = size.height
+        case textView3:
+            textViewHeihtConst2.constant = size.height
+        case textView6:
+            textViewHeihtConst3.constant = size.height
+        default:
+            break
+        }
         textView.layer.cornerRadius = 12
         textView.backgroundColor = UIColor(white: 1.0, alpha: 0.8) // 半透明でクール
         textView.layer.cornerRadius = 12
@@ -181,7 +197,7 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
         case scrollRatio > 0.3 && !animationFlag3:
             self.appearView( on: self.textView3)
             animationFlag3 = true
-        case scrollRatio > 0.4 && !animationFlag4:
+        case scrollRatio > 0.45 && !animationFlag4:
             jankuSinkuron.alpha = 1
             jankuSpeader.alpha = 1
             changeClearColor(monsterView: jankuSinkuron) {
@@ -194,7 +210,7 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 self.tyunar1.alpha = 0
-                self.tyunar2.alpha = 0
+                self.monster1.alpha = 0
                 self.animateSynchroLineUp()
             }
             animationFlag4 = true
@@ -207,7 +223,7 @@ class sinkuroViewController: UIViewController,UIScrollViewDelegate {
             textView.alpha = 1  // 徐々に表示される
         })
     }
-    func changeClearColor(monsterView: UIImageView, completion: @escaping () -> Void) {
+    func changeClearColor(monsterView: UIImageView, completion: @escaping () -> Void) {//何となくよりも子だわっったなら話せるまで落とし込む
         let mask = CALayer()
         mask.backgroundColor = UIColor.white.cgColor
         mask.anchorPoint = CGPoint(x: 0.5, y: 1.0)//起点
