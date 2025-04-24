@@ -8,8 +8,8 @@
 import Foundation
 import UIKit
 import PKHUD
+import SDWebImage
 class TestViewController: UIViewController {
-    @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var backgroundImage: UIImageView!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var contentView: UIView!
@@ -19,22 +19,34 @@ class TestViewController: UIViewController {
     @IBOutlet weak var textView2: UITextView!
     @IBOutlet weak var textView3: UITextView!
     @IBOutlet weak var textView4: UITextView!
+    @IBOutlet weak var textView5: UITextView!
     @IBOutlet weak var monsterStackView: UIStackView!
     @IBOutlet weak var monsterStackView2: UIStackView!
+    @IBOutlet weak var imageView1: UIImageView!
+    @IBOutlet weak var imageView2: UIImageView!
+    @IBOutlet weak var imageView3: UIImageView!
+    @IBOutlet weak var imageView4: UIImageView!
+    @IBOutlet weak var imageView5: UIImageView!
+    @IBOutlet weak var imageView6: UIImageView!
+    @IBOutlet weak var imageView7: UIImageView!
+    @IBOutlet weak var imageView8: UIImageView!
+    @IBOutlet weak var imageView9: UIImageView!
+    @IBOutlet weak var buttun1: UIButton!
+    @IBOutlet weak var buttun2: UIButton!
     var textData:[texts]?
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.contentMode = .scaleAspectFill
         backgroundImage.clipsToBounds = true
         backgroundImage.frame = contentView.bounds
-        }
+    }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         HUD.show(.progress, onView: self.view)
         let textViews: [UITextView] = [textView1,textView2,textView3]
         fetchTextActon()
         backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
-       
+        
         for tv in textViews {
             textViewsCustom(textView: tv)
         }
@@ -48,6 +60,10 @@ class TestViewController: UIViewController {
                 guard let self = self else { return }
                 switch result {
                 case true:
+                    for item in texts! {
+                        UserInfo.shared.photoUrls?.append(URL(string:item.photo!)!)
+                    }
+                    SDWebImagePrefetcher.shared.prefetchURLs(UserInfo.shared.imageUrls!)//プリロード
                     self.textData = texts!
                     DispatchQueue.main.async{
                         self.textDataset(texts: self.textData!)
@@ -60,16 +76,76 @@ class TestViewController: UIViewController {
     func textDataset(texts: [texts]) {
         for textbox in texts {
             switch textbox.position {
-            case 0: textView1.text = textbox.text
-            case 1: textView2.text = textbox.text
-            case 2: textView3.text = textbox.text
+            case 0:
+                if let textData = textbox.text  {
+                    textView1.text = textData
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView1, photoData: photoString)
+                }
+            case 1:
+                if let textData = textbox.text  {
+                    textView2.text = textData
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView2, photoData: photoString)
+                }
+            case 2:
+                if let textData = textbox.text  {
+                    textView3.text = textData
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView3, photoData: photoString)
+                }
+            case 3:
+                if let textData = textbox.text  {
+                    textView4.text = textData
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView3, photoData: photoString)
+                }
+            case 4:
+                if let textData = textbox.text  {
+                    textView5.text = textData
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView3, photoData: photoString)
+                }
+            case 5:
+                if let textData = textbox.text  {
+                    buttun1.setTitle(textData, for: .normal)
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView3, photoData: photoString)
+                }
+            case 6:
+                if let textData = textbox.text  {
+                    buttun2.setTitle(textData, for: .normal)
+                }
+                if let photoString = textbox.photo  {
+                    urlImageSet(imageView: imageView3, photoData: photoString)
+                }
+            case 7: if let photoString = textbox.photo  {
+                urlImageSet(imageView: imageView3, photoData: photoString)
+            }
+            case 8: if let photoString = textbox.photo  {
+                urlImageSet(imageView: imageView3, photoData: photoString)
+            }
             default:
                 break
             }
         }
     }
+    func urlImageSet(imageView:UIImageView,photoData: String) {
+        let url = URL(string: photoData)
+        do {
+            imageView.sd_setImage(with:url)
+        } catch {
+            print("Error : Cat't get image")
+        }
+    }
     func textViewsCustom(textView: UITextView) {
-        textView.isScrollEnabled = false 
+        textView.isScrollEnabled = false
         textView.layer.cornerRadius = 12
         textView.backgroundColor = UIColor(white: 1.0, alpha: 0.8) // 半透明でクール
         textView.layer.cornerRadius = 12
@@ -133,41 +209,41 @@ class TestViewController: UIViewController {
         float.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         imageView.layer.add(float, forKey: "float")
     }
-   /* func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let offsetY = scrollView.contentOffset.y
-        let viewHeight = contentView.frame.height
-        let scrollRatio = offsetY / viewHeight  // ← これがポイント！
-        switch true {
-        case scrollRatio > 0.1 && !animationFlag:
-                self.appearView( on: self.apealView)
-            animationFlag = true
-        case scrollRatio > 0.2 && !animationFlag2:
-            self.appearView( on: self.textView8)
-            animationFlag2 = true
-        case scrollRatio > 0.3 && !animationFlag3:
-            self.appearView( on: self.textView3)
-            animationFlag3 = true
-        case scrollRatio > 0.4 && !animationFlag4:
-            jankuSinkuron.alpha = 1
-            jankuSpeader.alpha = 1
-            changeClearColor(monsterView: jankuSinkuron) {
-                self.lebel3Image.alpha = 0
-                self.tyunarLabel.alpha = 0
-            }
-            changeClearColor(monsterView: jankuSpeader) {
-                self.lebel5Image.alpha = 0
-                self.monstarLabel.alpha = 0
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                self.tyunar1.alpha = 0
-                self.tyunar2.alpha = 0
-                self.animateSynchroLineUp()
-            }
-            animationFlag4 = true
-        default:
-            break
-        }
-    }*/
+    /* func scrollViewDidScroll(_ scrollView: UIScrollView) {
+     let offsetY = scrollView.contentOffset.y
+     let viewHeight = contentView.frame.height
+     let scrollRatio = offsetY / viewHeight  // ← これがポイント！
+     switch true {
+     case scrollRatio > 0.1 && !animationFlag:
+     self.appearView( on: self.apealView)
+     animationFlag = true
+     case scrollRatio > 0.2 && !animationFlag2:
+     self.appearView( on: self.textView8)
+     animationFlag2 = true
+     case scrollRatio > 0.3 && !animationFlag3:
+     self.appearView( on: self.textView3)
+     animationFlag3 = true
+     case scrollRatio > 0.4 && !animationFlag4:
+     jankuSinkuron.alpha = 1
+     jankuSpeader.alpha = 1
+     changeClearColor(monsterView: jankuSinkuron) {
+     self.lebel3Image.alpha = 0
+     self.tyunarLabel.alpha = 0
+     }
+     changeClearColor(monsterView: jankuSpeader) {
+     self.lebel5Image.alpha = 0
+     self.monstarLabel.alpha = 0
+     }
+     DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+     self.tyunar1.alpha = 0
+     self.tyunar2.alpha = 0
+     self.animateSynchroLineUp()
+     }
+     animationFlag4 = true
+     default:
+     break
+     }
+     }*/
     func appearView(on textView: UIView) {
         UIView.animate(withDuration: 0.3,animations: {
             textView.alpha = 1  // 徐々に表示される

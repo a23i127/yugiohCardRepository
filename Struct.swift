@@ -20,5 +20,5 @@ struct cards : Decodable {
 struct texts : Decodable {
     let text: String
     let position: Int
-    let kategorie: String
+    let kategori: String
 }
