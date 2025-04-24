@@ -18,7 +18,8 @@ struct cards : Decodable {
     let description: String
 }
 struct texts : Decodable {
-    let text: String
+    let text: String?
     let position: Int
     let kategori: String
+    let photo: String?
 }
