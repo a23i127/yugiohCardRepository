@@ -14,4 +14,11 @@ struct cards : Decodable {
     let race: String //種族
     let lebel: String
     let imageUrl: String
+    let searchTag: String
+    let description: String
+}
+struct texts : Decodable {
+    let text: String
+    let position: Int
+    let kategorie: String
 }

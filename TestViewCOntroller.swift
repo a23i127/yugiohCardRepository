@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import PKHUD
 class TestViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var backgroundImage: UIImageView!
@@ -14,30 +15,61 @@ class TestViewController: UIViewController {
     @IBOutlet weak var contentView: UIView!
     @IBOutlet weak var exsMonster: UIImageView!
     @IBOutlet weak var exsMonsterArm: UIImageView!
-    @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var textView1: UITextView!
     @IBOutlet weak var textView2: UITextView!
     @IBOutlet weak var textView3: UITextView!
+    @IBOutlet weak var textView4: UITextView!
     @IBOutlet weak var monsterStackView: UIStackView!
     @IBOutlet weak var monsterStackView2: UIStackView!
-    
+    var textData:[texts]?
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.contentMode = .scaleAspectFill
         backgroundImage.clipsToBounds = true
-        backgroundImage.frame = scrollView.bounds
+        backgroundImage.frame = contentView.bounds
         }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        //backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
-        let textViews: [UITextView] = [textView,textView2,textView3]
+        HUD.show(.progress, onView: self.view)
+        let textViews: [UITextView] = [textView1,textView2,textView3]
+        fetchTextActon()
         backgroundImage.frame = CGRect(origin: .zero, size: scrollView.contentSize)
+       
         for tv in textViews {
             textViewsCustom(textView: tv)
         }
-        animateCharacter(monster: exsMonster, color: .yellow)
-        animateHand()
+        //animateCharacter(monster: exsMonster, color: .yellow)
+        //animateHand()
+    }
+    func fetchTextActon() {
+        if textData == nil {
+            let fetchTextInstance = fetchTextData()
+            fetchTextInstance.fecthText() { [weak self] texts,result in
+                guard let self = self else { return }
+                switch result {
+                case true:
+                    self.textData = texts!
+                    DispatchQueue.main.async{
+                        self.textDataset(texts: self.textData!)
+                    }
+                case false: self.showAlert()
+                }
+            }
+        }
+    }
+    func textDataset(texts: [texts]) {
+        for textbox in texts {
+            switch textbox.position {
+            case 0: textView1.text = textbox.text
+            case 1: textView2.text = textbox.text
+            case 2: textView3.text = textbox.text
+            default:
+                break
+            }
+        }
     }
     func textViewsCustom(textView: UITextView) {
+        textView.isScrollEnabled = false 
         textView.layer.cornerRadius = 12
         textView.backgroundColor = UIColor(white: 1.0, alpha: 0.8) // 半透明でクール
         textView.layer.cornerRadius = 12
@@ -51,7 +83,6 @@ class TestViewController: UIViewController {
     
     func animateCharacter(monster: UIImageView, color: UIColor) {
         // 斜め右下に向かう位置に制約を変える
-        contentView.addSubview(monster)
         monster.transform = CGAffineTransform.identity
         UIView.animate(withDuration: 1.0) {
             monster.alpha = 1  // 徐々に表示される
@@ -141,5 +172,10 @@ class TestViewController: UIViewController {
         UIView.animate(withDuration: 0.3,animations: {
             textView.alpha = 1  // 徐々に表示される
         })
+    }
+    func showAlert() {
+        let alert = UIAlertController(title: "お知らせです", message: "エラーです", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true, completion: nil)
     }
 }
