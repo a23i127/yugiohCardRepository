@@ -39,11 +39,13 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
     var buttons: [UIButton] = []
     var imageViews: [UIImageView] = []
     struct AnimationAction {
-        let threshold: CGFloat
+        var threshold: CGFloat
         var flag: Bool
-        let action: () -> Void
+        var action: () -> Void
     }
-    var animationAction: [AnimationAction] = []
+    var scrollExsAction: [AnimationAction] = []
+    var scrollFutionAction: [AnimationAction] = []
+    var resultAction: [AnimationAction] = []
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImage.contentMode = .scaleAspectFill
@@ -63,10 +65,10 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
             textViewsCustom(textView: tv)
         }
         
-        animationAction = [
+        scrollExsAction = [
             AnimationAction(threshold: 0.02, flag: false, action: { self.appearView(on: self.textView1) }),
             AnimationAction(threshold: 0.02, flag: false, action: {
-                self.zoomToRedLineAreaSmooth(imageView: self.imageView1)
+                self.zoomToRedLineAreaSmooth(imageView: self.imageView1,x:0.6,y:0.08,width: 0.3,height: 0.1)
                 self.appearView(on: self.stackView1)
             }),
             AnimationAction(threshold: 0.1, flag: false, action: { self.appearView(on: self.stackView2) }),
@@ -75,6 +77,27 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
             AnimationAction(threshold: 0.65, flag: false, action: { self.kategoriAction()}),
             AnimationAction(threshold: 0.9, flag: false, action: { self.appearView(on: self.stackVIew3) })
         ]
+        scrollFutionAction = [
+            AnimationAction(threshold: 0.02, flag: false, action: { self.appearView(on: self.textView1) }),
+            AnimationAction(threshold: 0.02, flag: false, action: {
+                self.appearView(on: self.stackView1)
+            }),
+            AnimationAction(threshold: 0.1, flag: false, action: {
+                self.appearView(on: self.stackView2)
+                self.zoomToRedLineAreaSmooth(imageView: self.imageView1,x:0.05,y: 0.7,width: 0.8,height: 0.2) }),
+            AnimationAction(threshold: 0.35, flag: false, action: { self.animateCharacter(monster: self.imageView4, color: .white) }),
+            AnimationAction(threshold: 0.45, flag: false, action: { self.animateCharacter(monster: self.imageView5, color: .white) }),
+            AnimationAction(threshold: 0.65, flag: false, action: { self.kategoriAction()}),
+            AnimationAction(threshold: 0.9, flag: false, action: { self.appearView(on: self.stackVIew3) })
+        ]
+        switch kategori{
+        case "融合":
+            resultAction = scrollFutionAction
+        case "エクシーズ":
+            resultAction = scrollExsAction
+        default:
+            break
+        }
     }
     func fetchTextActon() {
         guard let kategori = kategori else { return showAlert() }
@@ -139,11 +162,8 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
         textView.textContainerInset = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16) // 内側の余白
         textView.isEditable = false
     }
-    func zoomToRedLineAreaSmooth(imageView: UIImageView) {
-        var targetRect = CGRect(x: 0.6, y: 0.1, width: 0.3, height: 0.1)
-        if imageView == imageView3 {
-            targetRect = CGRect(x: 0.05, y: 0.75, width: 0.6, height: 0.1)
-        }
+    func zoomToRedLineAreaSmooth(imageView: UIImageView,x: Double,y: Double,width: Double,height: Double) {
+        var targetRect = CGRect(x: x, y: y, width: width, height: height)
         //Uikitで座標反転する！
         let animation = CABasicAnimation(keyPath: "contentsRect")
         animation.fromValue = imageView.layer.contentsRect
@@ -158,8 +178,37 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
         switch kategori {
         case "エクシーズ":
             exsSummon(imageView1: self.imageView4, imageView2: self.imageView5)
+        case "融合":
+            animateFusion(monster: imageView4, clockwise: true)
+            animateFusion(monster: imageView5, clockwise: false)
         default:
             break
+        }
+    }
+    func animateFusion(monster: UIImageView, clockwise: Bool) {
+        let duration: TimeInterval = 4
+
+        UIView.animateKeyframes(withDuration: duration, delay: 0, options: []) {
+            for i in 0..<12 {
+                UIView.addKeyframe(withRelativeStartTime: Double(i) / Double(12),
+                                   relativeDuration: 1.0 / Double(12)) {
+                    
+                    let progress = CGFloat(i) / CGFloat(11) // 0.0 → 1.0
+                    let angle = progress * 2 * .pi * (clockwise ? 1 : 1.5) // 1周近く回す（調整OK）
+                    let radius = 200 * (1.0 - progress) // 200 → 0
+                    
+                    let center = CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.midY)
+                    monster.center = CGPoint(
+                        x: center.x + radius * cos(angle),
+                        y: center.y + radius * sin(angle)
+                    )
+                    let scale = 1.0 - progress * 0.9 // 1.0 → 0.1（小さくなりすぎないよう調整）
+                    monster.transform = CGAffineTransform(scaleX: scale, y: scale)
+                    monster.alpha = 1.0 - progress // フェードアウト
+                }
+            }
+        } completion: { _ in
+            monster.removeFromSuperview()
         }
     }
     //カテゴリ専用関数
@@ -237,6 +286,7 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
             self.imageView8.transform = CGAffineTransform(translationX: 0, y: -5)
         }, completion: nil)
     }
+    
     //汎用関数
     func animateCharacter(monster: UIImageView, color: UIColor) {
         monster.transform = CGAffineTransform.identity
@@ -281,10 +331,10 @@ class TestViewController: UIViewController,UIScrollViewDelegate {
         let offsetY = scrollView.contentOffset.y
         let scrollableHeight = scrollView.contentSize.height - scrollView.frame.height
         let scrollRatio = offsetY / scrollableHeight
-        for i in 0..<animationAction.count {
-            if scrollRatio > animationAction[i].threshold && !animationAction[i].flag {
-                animationAction[i].action()
-                animationAction[i].flag = true
+        for i in 0..<resultAction.count {
+            if scrollRatio > resultAction[i].threshold && !resultAction[i].flag {
+                resultAction[i].action()
+                resultAction[i].flag = true
             }
         }
     }
